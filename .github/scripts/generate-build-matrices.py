@@ -15,6 +15,14 @@ CORE_FILES_REGEX = re.compile(
     r"^(common/|compiler/|core/|gradle/|build\.gradle\.kts|gradle\.properties|settings\.gradle\.kts|.github/scripts)"
 )
 
+# Extensions this repo publishes, as `<lang>/<source>`, one per line.
+ALLOWED_MODULES = {
+    f":src:{line.strip().replace('/', ':')}"
+    for line in Path(__file__).with_name("extensions.txt").read_text("utf-8").splitlines()
+    if line.strip()
+}
+
+
 def run_command(command: str) -> str:
     result = subprocess.run(command, capture_output=True, text=True, shell=True)
     if result.returncode != 0:
@@ -251,6 +259,7 @@ def create_matrix(modules: list[str]) -> dict:
 def main() -> None:
     _, ref = sys.argv
     modules, deleted, lint_modules, is_full_rebuild = get_module_list(ref)
+    modules = [module for module in modules if module in ALLOWED_MODULES]
 
     matrix = create_matrix(modules)
 
