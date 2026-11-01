@@ -88,13 +88,30 @@ class ChapterReferenceDto(
 )
 
 @Serializable
-class ReaderAccessResponseDto(
-    val chapter: ReaderChapterDto,
+class ReaderAccessRequestDto(
+    val mangaId: String,
+    val chapterId: String,
+    val turnstileToken: String,
 )
 
 @Serializable
-class ReaderChapterDto(
-    val pages: List<String>,
+class ReaderAccessResponseDto(
+    val pageCount: Int,
+    val firstHandle: ReaderHandleDto,
+)
+
+@Serializable
+class ReaderHandleDto(
+    val token: String,
+    val pageNumber: Int,
+)
+
+@Serializable
+class ReaderPageDto(
+    val imageUrl: String,
+    val imageExpiresAt: Long,
+    val pageNumber: Int,
+    val nextHandle: ReaderHandleDto? = null,
 )
 
 @Serializable

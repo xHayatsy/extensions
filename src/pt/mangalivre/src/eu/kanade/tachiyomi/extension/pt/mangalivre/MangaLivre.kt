@@ -1,11 +1,5 @@
 package eu.kanade.tachiyomi.extension.pt.mangalivre
 
-import android.content.ComponentName
-import android.content.Intent
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.ResultReceiver
 import androidx.preference.PreferenceScreen
 import androidx.preference.SwitchPreferenceCompat
 import eu.kanade.tachiyomi.source.ConfigurableSource
@@ -22,22 +16,20 @@ import keiyoushi.network.get
 import keiyoushi.network.post
 import keiyoushi.network.rateLimit
 import keiyoushi.source.KeiSource
-import keiyoushi.utils.applicationContext
 import keiyoushi.utils.getPreferencesLazy
+import keiyoushi.utils.getTurnstileToken
 import keiyoushi.utils.parseAs
 import keiyoushi.utils.toJsonRequestBody
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.JsonElement
+import okhttp3.CacheControl
 import okhttp3.Headers
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody
 import okhttp3.Response
 import java.io.IOException
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @Source
@@ -49,7 +41,8 @@ abstract class MangaLivre :
     private val apiUrl: String get() = "$baseUrl/api"
 
     private val preferences by getPreferencesLazy()
-    private val verificationMutex = Mutex()
+    private val readerMutex = Mutex()
+    private var readerSession: ReaderSession? = null
 
     override fun Headers.Builder.configureHeaders(): Headers.Builder = set("Accept-Language", "pt-BR,en-US;q=0.9,en;q=0.8")
 
@@ -133,25 +126,49 @@ abstract class MangaLivre :
     // ============================== Pages =======================================
 
     override suspend fun getPageList(chapter: SChapter): List<Page> {
-        val chapterUrl = "$baseUrl${chapter.url}".toHttpUrl()
+        val chapterUrl = "$baseUrl${chapter.url}"
         val ref = chapter.memo.parseAs<ChapterReferenceDto>()
-        val chapterNumber = chapterUrl.pathSegments.last { it.isNotEmpty() }
-
-        return verificationMutex.withLock {
-            fetchReaderAccess(ref)?.let { access ->
-                return@withLock access.chapter.pages.toPageList(ref.mangaId, chapterNumber)
-            }
-
-            openVerificationWebView(chapterUrl.toString(), ref.mangaId, chapterNumber)
-                .toPageList(ref.mangaId, chapterNumber)
+        val pageCount = readerMutex.withLock { openReaderSession(chapterUrl, ref).pageCount }
+        return List(pageCount) { index ->
+            Page(index, url = "$chapterUrl#${ref.mangaId}/${ref.chapterId}/${index + 1}")
         }
     }
 
-    private suspend fun fetchReaderAccess(ref: ChapterReferenceDto): ReaderAccessResponseDto? {
+    override suspend fun getImageUrl(page: Page): String {
+        val pageUrl = page.url.toHttpUrl()
+        val (mangaId, chapterId, pageNumber) = pageUrl.fragment!!.split("/")
+        val chapterUrl = pageUrl.newBuilder().fragment(null).build().toString()
+        val target = pageNumber.toInt()
+
+        return readerMutex.withLock {
+            readerSession
+                ?.takeIf { it.chapterId == chapterId }
+                ?.let { resolveImage(it, chapterUrl, target) }
+                ?: resolveImage(openReaderSession(chapterUrl, ChapterReferenceDto(mangaId, chapterId)), chapterUrl, target)
+                ?: throw IOException("Não foi possível carregar a página $target.")
+        }
+    }
+
+    private suspend fun openReaderSession(chapterUrl: String, ref: ChapterReferenceDto): ReaderSession {
+        val access = fetchReaderAccess(chapterUrl, ref.toJsonRequestBody())
+            ?: fetchReaderAccess(
+                chapterUrl,
+                ReaderAccessRequestDto(
+                    ref.mangaId,
+                    ref.chapterId,
+                    getTurnstileToken(chapterUrl, TURNSTILE_SITE_KEY, action = TURNSTILE_ACTION),
+                ).toJsonRequestBody(),
+            )
+            ?: throw IOException(READER_VERIFICATION_REQUIRED)
+
+        return ReaderSession(ref.chapterId, access.pageCount, access.firstHandle).also { readerSession = it }
+    }
+
+    private suspend fun fetchReaderAccess(chapterUrl: String, body: RequestBody): ReaderAccessResponseDto? {
         client.post(
             "$apiUrl/reader/chapter/access",
-            fetch = Fetch.XHR,
-            body = ref.toJsonRequestBody(),
+            fetch = Fetch.XHR.from(chapterUrl),
+            body = body,
             ensureSuccess = false,
         ).use { response ->
             if (response.isSuccessful) return response.parseAs()
@@ -162,37 +179,37 @@ abstract class MangaLivre :
         }
     }
 
-    private suspend fun openVerificationWebView(
-        readerUrl: String,
-        mangaId: String,
-        chapterNumber: String,
-    ): List<String> {
-        val result = CompletableDeferred<List<String>>()
-        val receiver =
-            object : ResultReceiver(Handler(Looper.getMainLooper())) {
-                override fun onReceiveResult(
-                    resultCode: Int,
-                    resultData: Bundle?,
-                ) {
-                    val pages = resultData?.getStringArrayList(ReaderVerificationActivity.EXTRA_PAGES).orEmpty()
-                    if (resultCode == ReaderVerificationActivity.RESULT_PAGES && pages.isNotEmpty()) {
-                        result.complete(pages)
-                    } else {
-                        result.completeExceptionally(IOException("Verificação cancelada."))
-                    }
-                }
+    // Each page's short-lived handle only comes from the previous page's response, so reaching a
+    // page means walking the chain. Returns null once the session can't get there anymore.
+    private suspend fun resolveImage(session: ReaderSession, chapterUrl: String, target: Int): String? {
+        while (true) {
+            session.validImageUrl(target)?.let { return it }
+            val handle = session.nextHandle?.takeIf { it.pageNumber <= target } ?: return null
+
+            val dto = client.get(
+                "$apiUrl/reader/p/${handle.token}",
+                fetch = Fetch.XHR.from(chapterUrl),
+                cacheControl = CacheControl.FORCE_NETWORK,
+                ensureSuccess = false,
+            ).use { response ->
+                if (!response.isSuccessful) return null
+                response.parseAs<ReaderPageDto>()
             }
-        val intent =
-            Intent().apply {
-                component = ComponentName(EXTENSION_PACKAGE, ReaderVerificationActivity::class.java.name)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                putExtra(ReaderVerificationActivity.EXTRA_URL, readerUrl)
-                putExtra(ReaderVerificationActivity.EXTRA_MANGA_ID, mangaId)
-                putExtra(ReaderVerificationActivity.EXTRA_CHAPTER_NUMBER, chapterNumber)
-                putExtra(ReaderVerificationActivity.EXTRA_RECEIVER, receiver)
-            }
-        applicationContext.startActivity(intent)
-        return withTimeout(VERIFICATION_TIMEOUT) { result.await() }
+            session.images[dto.pageNumber] = dto
+            session.nextHandle = dto.nextHandle
+        }
+    }
+
+    private class ReaderSession(
+        val chapterId: String,
+        val pageCount: Int,
+        var nextHandle: ReaderHandleDto?,
+    ) {
+        val images = mutableMapOf<Int, ReaderPageDto>()
+
+        fun validImageUrl(page: Int): String? = images[page]
+            ?.takeIf { it.imageExpiresAt > System.currentTimeMillis() + IMAGE_EXPIRY_MARGIN_MS }
+            ?.imageUrl
     }
 
     // ============================== Filters =======================================
@@ -249,11 +266,9 @@ abstract class MangaLivre :
     }
 
     companion object {
-        private val VERIFICATION_TIMEOUT = 2.minutes
-        private const val EXTENSION_PACKAGE = "eu.kanade.tachiyomi.extension.pt.mangalivre"
-        private const val CDN_HOST = "cdn.toonlivre.net"
-        private const val PROXY_HOST = "slightly-free-mayfly.edgecompute.app"
-        private val PAGE_NUMBER_REGEX = Regex("""_(\d+)\.[^.]+$""")
+        private const val TURNSTILE_SITE_KEY = "0x4AAAAAAC_2UGhBWthpfExC"
+        private const val TURNSTILE_ACTION = "reader-chapter"
+        private const val IMAGE_EXPIRY_MARGIN_MS = 5_000L
 
         private const val ALTERNATIVE_TITLE_PREF = "alternativeTitlePref"
         private const val MAX_PEEK = 1024L
@@ -269,50 +284,4 @@ abstract class MangaLivre :
         private const val DIRECTION_DESC = "desc"
         private const val DIRECTION_ASC = "asc"
     }
-
-    private fun String.toCdnImageUrl(): String? {
-        val url = toHttpUrlOrNull() ?: return null
-        val candidate =
-            when (url.host) {
-                CDN_HOST -> url
-                PROXY_HOST -> url.queryParameter("url")?.toHttpUrlOrNull()
-                else -> null
-            } ?: return null
-
-        return candidate.takeIf { it.isHttps && it.host == CDN_HOST }?.toString()
-    }
-
-    private fun String.isChapterImage(
-        mangaId: String,
-        chapterNumber: String,
-    ): Boolean {
-        val pathSegments = toHttpUrl().pathSegments
-        return pathSegments.size >= 4 &&
-            pathSegments[0] == "obras" &&
-            pathSegments[1] == mangaId &&
-            pathSegments[2] == chapterNumber &&
-            pathSegments[3].isNotEmpty()
-    }
-
-    private fun List<String>.toPageList(
-        mangaId: String,
-        chapterNumber: String,
-    ): List<Page> {
-        val sortedUrls =
-            asSequence()
-                .mapNotNull { it.toCdnImageUrl() }
-                .filter { it.isChapterImage(mangaId, chapterNumber) }
-                .distinct()
-                .sortedWith(compareBy<String>({ it.pageNumber() ?: Int.MAX_VALUE }, { it }))
-                .toList()
-        return sortedUrls.mapIndexed { index, imageUrl -> Page(index, imageUrl = imageUrl) }
-    }
-
-    private fun String.pageNumber(): Int? = toHttpUrl()
-        .pathSegments
-        .lastOrNull()
-        ?.let(PAGE_NUMBER_REGEX::find)
-        ?.groupValues
-        ?.get(1)
-        ?.toIntOrNull()
 }
