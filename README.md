@@ -19,9 +19,10 @@ Se você já usa a mesma extensão de outro repositório, faça um backup do Mih
 
 ## Extensões disponíveis
 
-| Extensão | Idioma |
-|-----------|-------|
-| ToonLivre | pt-BR |
+| Extensão     | Idioma |
+|--------------|--------|
+| Nexus Mangás | pt-BR  |
+| ToonLivre    | pt-BR  |
 
 ## License
 
