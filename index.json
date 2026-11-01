@@ -1,1 +1,33 @@
-{}
+{
+  "name": "Mihon Extensions",
+  "badgeLabel": "MEX",
+  "signingKey": "eaf15b4542be9c27b233643413517af4dde4ded20015f977de3e86c8a411bc38",
+  "contact": {
+    "website": "https://github.com/xHayatsy/mihon-extensions"
+  },
+  "extensionList": {
+    "extensions": [
+      {
+        "name": "ToonLivre",
+        "packageName": "eu.kanade.tachiyomi.extension.pt.mangalivre",
+        "resources": {
+          "apkUrl": "https://github.com/xHayatsy/mihon-extensions/releases/download/cfde933/tachiyomi-pt.mangalivre-v1.6.91.apk",
+          "iconUrl": "https://cdn.jsdelivr.net/gh/xHayatsy/mihon-extensions@mihon/src/pt/mangalivre/res/mipmap-xhdpi/ic_launcher.png",
+          "jarUrl": "https://github.com/xHayatsy/mihon-extensions/releases/download/cfde933/tachiyomi-pt.mangalivre-v1.6.91.jar"
+        },
+        "extensionLib": "1.6",
+        "versionCode": "106091",
+        "versionName": "1.6.91",
+        "contentWarning": "CONTENT_WARNING_SAFE",
+        "sources": [
+          {
+            "id": "2834885536325274328",
+            "name": "ToonLivre",
+            "language": "pt-BR",
+            "homeUrl": "https://toonlivre.net"
+          }
+        ]
+      }
+    ]
+  }
+}
