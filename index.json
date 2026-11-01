@@ -27,6 +27,27 @@
             "homeUrl": "https://toonlivre.net"
           }
         ]
+      },
+      {
+        "name": "Nexus Mang\u00e1s",
+        "packageName": "eu.kanade.tachiyomi.extension.pt.nexusmangas",
+        "resources": {
+          "apkUrl": "https://github.com/xHayatsy/mihon-extensions/releases/download/6151372/tachiyomi-pt.nexusmangas-v1.6.3.apk",
+          "iconUrl": "https://cdn.jsdelivr.net/gh/xHayatsy/mihon-extensions@mihon/src/pt/nexusmangas/res/mipmap-xhdpi/ic_launcher.png",
+          "jarUrl": "https://github.com/xHayatsy/mihon-extensions/releases/download/6151372/tachiyomi-pt.nexusmangas-v1.6.3.jar"
+        },
+        "extensionLib": "1.6",
+        "versionCode": "106003",
+        "versionName": "1.6.3",
+        "contentWarning": "CONTENT_WARNING_MIXED",
+        "sources": [
+          {
+            "id": "3647960912061862872",
+            "name": "Nexus Mang\u00e1s",
+            "language": "pt-BR",
+            "homeUrl": "https://www.nexusmangas.com"
+          }
+        ]
       }
     ]
   }
