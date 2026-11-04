@@ -21,6 +21,7 @@ Se você já usa a mesma extensão de outro repositório, faça um backup do Mih
 
 | Extensão     | Idioma |
 |--------------|--------|
+| Kaktustoon   | pt-BR  |
 | Nexus Mangás | pt-BR  |
 | ToonLivre    | pt-BR  |
 
