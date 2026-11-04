@@ -1,8 +1,8 @@
 {
-  "index_v2": "https://github.com/xHayatsy/mihon-extensions/raw/repo/index.pb",
+  "index_v2": "https://github.com/xHayatsy/extensions/raw/repo/index.pb",
   "meta": {
     "name": "Mihon Extensions",
-    "website": "https://github.com/xHayatsy/mihon-extensions",
+    "website": "https://github.com/xHayatsy/extensions",
     "signingKeyFingerprint": "eaf15b4542be9c27b233643413517af4dde4ded20015f977de3e86c8a411bc38"
   }
 }
