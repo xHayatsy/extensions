@@ -3,7 +3,7 @@
   "badgeLabel": "MEX",
   "signingKey": "eaf15b4542be9c27b233643413517af4dde4ded20015f977de3e86c8a411bc38",
   "contact": {
-    "website": "https://github.com/xHayatsy/mihon-extensions"
+    "website": "https://github.com/xHayatsy/extensions"
   },
   "extensionList": {
     "extensions": [
@@ -11,9 +11,9 @@
         "name": "Kaktustoon",
         "packageName": "eu.kanade.tachiyomi.extension.pt.kaktustoon",
         "resources": {
-          "apkUrl": "https://github.com/xHayatsy/mihon-extensions/releases/download/7edf7cc/tachiyomi-pt.kaktustoon-v1.6.1.apk",
-          "iconUrl": "https://cdn.jsdelivr.net/gh/xHayatsy/mihon-extensions@mihon/src/pt/kaktustoon/res/mipmap-xhdpi/ic_launcher.png",
-          "jarUrl": "https://github.com/xHayatsy/mihon-extensions/releases/download/7edf7cc/tachiyomi-pt.kaktustoon-v1.6.1.jar"
+          "apkUrl": "https://github.com/xHayatsy/extensions/releases/download/021eb14/tachiyomi-pt.kaktustoon-v1.6.1.apk",
+          "iconUrl": "https://cdn.jsdelivr.net/gh/xHayatsy/extensions@mihon/src/pt/kaktustoon/res/mipmap-xhdpi/ic_launcher.png",
+          "jarUrl": "https://github.com/xHayatsy/extensions/releases/download/021eb14/tachiyomi-pt.kaktustoon-v1.6.1.jar"
         },
         "extensionLib": "1.6",
         "versionCode": "106001",
@@ -32,9 +32,9 @@
         "name": "ToonLivre",
         "packageName": "eu.kanade.tachiyomi.extension.pt.mangalivre",
         "resources": {
-          "apkUrl": "https://github.com/xHayatsy/mihon-extensions/releases/download/cfde933/tachiyomi-pt.mangalivre-v1.6.91.apk",
-          "iconUrl": "https://cdn.jsdelivr.net/gh/xHayatsy/mihon-extensions@mihon/src/pt/mangalivre/res/mipmap-xhdpi/ic_launcher.png",
-          "jarUrl": "https://github.com/xHayatsy/mihon-extensions/releases/download/cfde933/tachiyomi-pt.mangalivre-v1.6.91.jar"
+          "apkUrl": "https://github.com/xHayatsy/extensions/releases/download/021eb14/tachiyomi-pt.mangalivre-v1.6.91.apk",
+          "iconUrl": "https://cdn.jsdelivr.net/gh/xHayatsy/extensions@mihon/src/pt/mangalivre/res/mipmap-xhdpi/ic_launcher.png",
+          "jarUrl": "https://github.com/xHayatsy/extensions/releases/download/021eb14/tachiyomi-pt.mangalivre-v1.6.91.jar"
         },
         "extensionLib": "1.6",
         "versionCode": "106091",
@@ -53,9 +53,9 @@
         "name": "Nexus Mang\u00e1s",
         "packageName": "eu.kanade.tachiyomi.extension.pt.nexusmangas",
         "resources": {
-          "apkUrl": "https://github.com/xHayatsy/mihon-extensions/releases/download/6151372/tachiyomi-pt.nexusmangas-v1.6.3.apk",
-          "iconUrl": "https://cdn.jsdelivr.net/gh/xHayatsy/mihon-extensions@mihon/src/pt/nexusmangas/res/mipmap-xhdpi/ic_launcher.png",
-          "jarUrl": "https://github.com/xHayatsy/mihon-extensions/releases/download/6151372/tachiyomi-pt.nexusmangas-v1.6.3.jar"
+          "apkUrl": "https://github.com/xHayatsy/extensions/releases/download/021eb14/tachiyomi-pt.nexusmangas-v1.6.3.apk",
+          "iconUrl": "https://cdn.jsdelivr.net/gh/xHayatsy/extensions@mihon/src/pt/nexusmangas/res/mipmap-xhdpi/ic_launcher.png",
+          "jarUrl": "https://github.com/xHayatsy/extensions/releases/download/021eb14/tachiyomi-pt.nexusmangas-v1.6.3.jar"
         },
         "extensionLib": "1.6",
         "versionCode": "106003",
