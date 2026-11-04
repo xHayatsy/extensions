@@ -8,6 +8,27 @@
   "extensionList": {
     "extensions": [
       {
+        "name": "Kaktustoon",
+        "packageName": "eu.kanade.tachiyomi.extension.pt.kaktustoon",
+        "resources": {
+          "apkUrl": "https://github.com/xHayatsy/mihon-extensions/releases/download/7edf7cc/tachiyomi-pt.kaktustoon-v1.6.1.apk",
+          "iconUrl": "https://cdn.jsdelivr.net/gh/xHayatsy/mihon-extensions@mihon/src/pt/kaktustoon/res/mipmap-xhdpi/ic_launcher.png",
+          "jarUrl": "https://github.com/xHayatsy/mihon-extensions/releases/download/7edf7cc/tachiyomi-pt.kaktustoon-v1.6.1.jar"
+        },
+        "extensionLib": "1.6",
+        "versionCode": "106001",
+        "versionName": "1.6.1",
+        "contentWarning": "CONTENT_WARNING_SAFE",
+        "sources": [
+          {
+            "id": "4174139618904192059",
+            "name": "Kaktustoon",
+            "language": "pt-BR",
+            "homeUrl": "https://kaktustoon.com"
+          }
+        ]
+      },
+      {
         "name": "ToonLivre",
         "packageName": "eu.kanade.tachiyomi.extension.pt.mangalivre",
         "resources": {
