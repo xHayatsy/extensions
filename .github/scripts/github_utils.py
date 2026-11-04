@@ -1,7 +1,7 @@
 import subprocess
 import time
 
-REPO_NAME = "xHayatsy/mihon-extensions"
+REPO_NAME = "xHayatsy/extensions"
 RETRY_ATTEMPTS = 4
 RETRY_BASE_DELAY = 60
 

@@ -18,7 +18,7 @@ ARTIFACTS_DIR = Path.home() / "apk-artifacts"
 # The checked-out `repo` branch we publish into (the working directory).
 REPO_DIR = Path.cwd()
 
-ICON_BASE_URL = "https://cdn.jsdelivr.net/gh/xHayatsy/mihon-extensions@mihon"
+ICON_BASE_URL = "https://cdn.jsdelivr.net/gh/xHayatsy/extensions@mihon"
 RELEASE_BASE_URL = f"https://github.com/{REPO_NAME}/releases/download"
 ASSET_LIMIT = 495  # Actual limit is 1000 but we upload 2 items per extension.
 UPLOAD_CHUNK_SIZE = 80
@@ -174,7 +174,7 @@ index = index_pb2.Index(
     badgeLabel="MEX",
     signingKey="eaf15b4542be9c27b233643413517af4dde4ded20015f977de3e86c8a411bc38",
     contact=index_pb2.Contact(
-        website="https://github.com/xHayatsy/mihon-extensions",
+        website="https://github.com/xHayatsy/extensions",
     ),
     extensionList=index_pb2.ExtensionList(extensions=final_extensions),
 )
@@ -235,7 +235,7 @@ def create_release(tag: str):
         "--title",
         f"Repository Update {tag}",
         "--notes",
-        f"Automated update from xHayatsy/mihon-extensions@{current_sha}",
+        f"Automated update from xHayatsy/extensions@{current_sha}",
     )
 
 

@@ -1,6 +1,6 @@
 # Mihon Extensions
 
-[![CI](https://github.com/xHayatsy/mihon-extensions/actions/workflows/build_push.yml/badge.svg)](https://github.com/xHayatsy/mihon-extensions/actions/workflows/build_push.yml)
+[![CI](https://github.com/xHayatsy/extensions/actions/workflows/build_push.yml/badge.svg)](https://github.com/xHayatsy/extensions/actions/workflows/build_push.yml)
 
 Repositório pessoal de extensões para o [Mihon](https://mihon.app), baseado no [Keiyoushi](https://github.com/keiyoushi/extensions-source).
 
@@ -9,7 +9,7 @@ Repositório pessoal de extensões para o [Mihon](https://mihon.app), baseado no
 Copie este link:
 
 ```
-https://raw.githubusercontent.com/xHayatsy/mihon-extensions/repo/index.min.json
+https://raw.githubusercontent.com/xHayatsy/extensions/repo/index.min.json
 ```
 
 1. No Mihon, abra **More → Settings → Browse → Extension stores → Add** e cole o link.
