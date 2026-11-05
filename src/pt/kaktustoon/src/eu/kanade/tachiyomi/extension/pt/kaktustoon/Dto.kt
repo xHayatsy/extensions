@@ -60,14 +60,18 @@ class ChapterPagesDto(
 ) {
     fun toPageList(baseUrl: String) = pages
         .sortedBy(PageDto::index)
-        .mapIndexed { index, page -> Page(index, imageUrl = baseUrl + page.trUrl) }
+        .mapIndexed { index, page -> Page(index, imageUrl = baseUrl + page.imageUrl) }
 }
 
+// Pages without text are never translated: tr_url comes back null and the site shows the original.
 @Serializable
 class PageDto(
     val index: Int,
-    @SerialName("tr_url") val trUrl: String,
-)
+    @SerialName("tr_url") private val trUrl: String? = null,
+    @SerialName("src_url") private val srcUrl: String,
+) {
+    val imageUrl get() = trUrl ?: srcUrl
+}
 
 private val MARKS_REGEX = "\\p{InCombiningDiacriticalMarks}+".toRegex()
 
