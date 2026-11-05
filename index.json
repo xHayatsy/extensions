@@ -11,13 +11,13 @@
         "name": "Kaktustoon",
         "packageName": "eu.kanade.tachiyomi.extension.pt.kaktustoon",
         "resources": {
-          "apkUrl": "https://github.com/xHayatsy/extensions/releases/download/021eb14/tachiyomi-pt.kaktustoon-v1.6.1.apk",
+          "apkUrl": "https://github.com/xHayatsy/extensions/releases/download/46d1d9a/tachiyomi-pt.kaktustoon-v1.6.2.apk",
           "iconUrl": "https://cdn.jsdelivr.net/gh/xHayatsy/extensions@mihon/src/pt/kaktustoon/res/mipmap-xhdpi/ic_launcher.png",
-          "jarUrl": "https://github.com/xHayatsy/extensions/releases/download/021eb14/tachiyomi-pt.kaktustoon-v1.6.1.jar"
+          "jarUrl": "https://github.com/xHayatsy/extensions/releases/download/46d1d9a/tachiyomi-pt.kaktustoon-v1.6.2.jar"
         },
         "extensionLib": "1.6",
-        "versionCode": "106001",
-        "versionName": "1.6.1",
+        "versionCode": "106002",
+        "versionName": "1.6.2",
         "contentWarning": "CONTENT_WARNING_SAFE",
         "sources": [
           {
