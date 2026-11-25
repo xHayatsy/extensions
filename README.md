@@ -9,7 +9,7 @@ Repositório pessoal de extensões para o [Mihon](https://mihon.app), baseado no
 Copie este link:
 
 ```
-https://raw.githubusercontent.com/xHayatsy/extensions/repo/index.min.json
+https://raw.githubusercontent.com/xHayatsy/extensions/repo/index.json
 ```
 
 1. No Mihon, abra **More → Settings → Browse → Extension stores → Add** e cole o link.

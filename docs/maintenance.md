@@ -11,7 +11,7 @@ estão em [CONTRIBUTING.md](../CONTRIBUTING.md).
 - ToonLivre: módulo `src/pt/mangalivre`, pacote
   `eu.kanade.tachiyomi.extension.pt.mangalivre`, source ID `2834885536325274328`.
 - Índice instalado no Mihon:
-  `https://raw.githubusercontent.com/xHayatsy/extensions/repo/index.min.json`.
+  `https://raw.githubusercontent.com/xHayatsy/extensions/repo/index.json`.
 
 O nome interno `mangalivre` é anterior ao nome ToonLivre. Preservar o pacote e o
 source ID mantém a atualização do APK e o vínculo das obras na biblioteca.
@@ -28,6 +28,9 @@ GitHub, cria os assets de release e atualiza os índices na branch `repo`. Depoi
 push, conferir o resultado do workflow e a versão no índice; o push sozinho não
 confirma a publicação. Não copiar chaves de assinatura ou credenciais para a
 documentação ou a memória.
+
+O publicador atual mantém `index.json` e `index.pb`. O antigo `index.min.json`
+contém uma lista vazia e não serve para verificar as versões publicadas.
 
 ## Emulador
 
