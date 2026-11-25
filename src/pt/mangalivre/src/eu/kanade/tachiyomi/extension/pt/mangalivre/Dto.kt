@@ -96,22 +96,12 @@ class ReaderAccessRequestDto(
 
 @Serializable
 class ReaderAccessResponseDto(
-    val pageCount: Int,
-    val firstHandle: ReaderHandleDto,
+    val chapter: ReaderChapterDto,
 )
 
 @Serializable
-class ReaderHandleDto(
-    val token: String,
-    val pageNumber: Int,
-)
-
-@Serializable
-class ReaderPageDto(
-    val imageUrl: String,
-    val imageExpiresAt: Long,
-    val pageNumber: Int,
-    val nextHandle: ReaderHandleDto? = null,
+class ReaderChapterDto(
+    val pages: List<String>,
 )
 
 @Serializable

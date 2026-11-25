@@ -20,10 +20,7 @@ import keiyoushi.utils.getPreferencesLazy
 import keiyoushi.utils.getTurnstileToken
 import keiyoushi.utils.parseAs
 import keiyoushi.utils.toJsonRequestBody
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.JsonElement
-import okhttp3.CacheControl
 import okhttp3.Headers
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
@@ -41,8 +38,6 @@ abstract class MangaLivre :
     private val apiUrl: String get() = "$baseUrl/api"
 
     private val preferences by getPreferencesLazy()
-    private val readerMutex = Mutex()
-    private var readerSession: ReaderSession? = null
 
     override fun Headers.Builder.configureHeaders(): Headers.Builder = set("Accept-Language", "pt-BR,en-US;q=0.9,en;q=0.8")
 
@@ -128,28 +123,6 @@ abstract class MangaLivre :
     override suspend fun getPageList(chapter: SChapter): List<Page> {
         val chapterUrl = "$baseUrl${chapter.url}"
         val ref = chapter.memo.parseAs<ChapterReferenceDto>()
-        val pageCount = readerMutex.withLock { openReaderSession(chapterUrl, ref).pageCount }
-        return List(pageCount) { index ->
-            Page(index, url = "$chapterUrl#${ref.mangaId}/${ref.chapterId}/${index + 1}")
-        }
-    }
-
-    override suspend fun getImageUrl(page: Page): String {
-        val pageUrl = page.url.toHttpUrl()
-        val (mangaId, chapterId, pageNumber) = pageUrl.fragment!!.split("/")
-        val chapterUrl = pageUrl.newBuilder().fragment(null).build().toString()
-        val target = pageNumber.toInt()
-
-        return readerMutex.withLock {
-            readerSession
-                ?.takeIf { it.chapterId == chapterId }
-                ?.let { resolveImage(it, chapterUrl, target) }
-                ?: resolveImage(openReaderSession(chapterUrl, ChapterReferenceDto(mangaId, chapterId)), chapterUrl, target)
-                ?: throw IOException("Não foi possível carregar a página $target.")
-        }
-    }
-
-    private suspend fun openReaderSession(chapterUrl: String, ref: ChapterReferenceDto): ReaderSession {
         val access = fetchReaderAccess(chapterUrl, ref.toJsonRequestBody())
             ?: fetchReaderAccess(
                 chapterUrl,
@@ -161,7 +134,9 @@ abstract class MangaLivre :
             )
             ?: throw IOException(READER_VERIFICATION_REQUIRED)
 
-        return ReaderSession(ref.chapterId, access.pageCount, access.firstHandle).also { readerSession = it }
+        return access.chapter.pages.mapIndexed { index, imageUrl ->
+            Page(index, imageUrl = imageUrl)
+        }
     }
 
     private suspend fun fetchReaderAccess(chapterUrl: String, body: RequestBody): ReaderAccessResponseDto? {
@@ -177,39 +152,6 @@ abstract class MangaLivre :
             if (response.code == 403 && error.error == READER_VERIFICATION_REQUIRED) return null
             throw IOException(error.error)
         }
-    }
-
-    // Each page's short-lived handle only comes from the previous page's response, so reaching a
-    // page means walking the chain. Returns null once the session can't get there anymore.
-    private suspend fun resolveImage(session: ReaderSession, chapterUrl: String, target: Int): String? {
-        while (true) {
-            session.validImageUrl(target)?.let { return it }
-            val handle = session.nextHandle?.takeIf { it.pageNumber <= target } ?: return null
-
-            val dto = client.get(
-                "$apiUrl/reader/p/${handle.token}",
-                fetch = Fetch.XHR.from(chapterUrl),
-                cacheControl = CacheControl.FORCE_NETWORK,
-                ensureSuccess = false,
-            ).use { response ->
-                if (!response.isSuccessful) return null
-                response.parseAs<ReaderPageDto>()
-            }
-            session.images[dto.pageNumber] = dto
-            session.nextHandle = dto.nextHandle
-        }
-    }
-
-    private class ReaderSession(
-        val chapterId: String,
-        val pageCount: Int,
-        var nextHandle: ReaderHandleDto?,
-    ) {
-        val images = mutableMapOf<Int, ReaderPageDto>()
-
-        fun validImageUrl(page: Int): String? = images[page]
-            ?.takeIf { it.imageExpiresAt > System.currentTimeMillis() + IMAGE_EXPIRY_MARGIN_MS }
-            ?.imageUrl
     }
 
     // ============================== Filters =======================================
@@ -268,7 +210,6 @@ abstract class MangaLivre :
     companion object {
         private const val TURNSTILE_SITE_KEY = "0x4AAAAAAC_2UGhBWthpfExC"
         private const val TURNSTILE_ACTION = "reader-chapter"
-        private const val IMAGE_EXPIRY_MARGIN_MS = 5_000L
 
         private const val ALTERNATIVE_TITLE_PREF = "alternativeTitlePref"
         private const val MAX_PEEK = 1024L

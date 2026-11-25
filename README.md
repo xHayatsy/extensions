@@ -25,6 +25,12 @@ Se você já usa a mesma extensão de outro repositório, faça um backup do Mih
 | Nexus Mangás | pt-BR  |
 | ToonLivre    | pt-BR  |
 
+## Desenvolvimento e manutenção
+
+Consulte [CONTRIBUTING.md](CONTRIBUTING.md) para as convenções de código e
+[docs/maintenance.md](docs/maintenance.md) para testes no emulador, publicação,
+diagnóstico do ToonLivre e integração com AI Memory.
+
 ## License
 
     Copyright 2015 Javier Tomás
